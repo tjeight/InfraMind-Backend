@@ -1,0 +1,21 @@
+version: "3.9"
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: inframind_postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_DB: inframind
+      POSTGRES_USER: inframind_user
+      POSTGRES_PASSWORD: inframind_password
+
+    ports:
+      - "5478:5432"
+
+    volumes:
+      - inframind_pg_data:/var/lib/postgresql/data
+
+volumes:
+  inframind_pg_data:
