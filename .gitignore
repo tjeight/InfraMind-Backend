@@ -13,3 +13,7 @@ wheels/
 # Env Files
 .env
 .env.*
+
+# Alembic bytecode cache
+alembic/__pycache__/
+alembic/**/__pycache__/
