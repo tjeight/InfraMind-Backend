@@ -4,26 +4,21 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.repository.models import RootModel
-from app.utils.generators import get_async_database_url
+from app.utils.generators import get_sync_database_url
 
-# Alembic config object
 config = context.config
 
-# Configure logging from alembic.ini
 if config.config_file_name:
     fileConfig(config.config_file_name)
 
-# Metadata for autogenerate support
 target_metadata = RootModel.metadata
-
-# Resolve database URL dynamically
-db_url = get_async_database_url()
 
 
 def run_migrations_offline() -> None:
-    # Run migrations without a DB connection
+    url = get_sync_database_url()
+
     context.configure(
-        url=db_url,
+        url=url,
         target_metadata=target_metadata,
         literal_binds=True,
         dialect_opts={"paramstyle": "named"},
@@ -34,9 +29,13 @@ def run_migrations_offline() -> None:
 
 
 def run_migrations_online() -> None:
-    # Create DB engine and bind connection
+    config.set_main_option(
+        "sqlalchemy.url",
+        get_sync_database_url(),
+    )
+
     connectable = engine_from_config(
-        config.get_section(config.config_ini_section, {}),
+        config.get_section(config.config_ini_section),
         prefix="sqlalchemy.",
         poolclass=pool.NullPool,
     )
@@ -51,7 +50,6 @@ def run_migrations_online() -> None:
             context.run_migrations()
 
 
-# Choose migration mode based on context
 if context.is_offline_mode():
     run_migrations_offline()
 else:

@@ -9,4 +9,13 @@ dependencies = [
     "asyncpg>=0.31.0",
     "fastapi[standard]>=0.128.0",
     "psycopg2-binary>=2.9.11",
+    "uuid6>=2025.0.1",
 ]
+
+[dependency-groups]
+dev = [
+    "ruff>=0.14.10",
+]
+
+[tool.ruff]
+exclude = [".venv","app/repository"]
