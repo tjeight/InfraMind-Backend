@@ -32,7 +32,7 @@ class AdminSession(RootModel):
         String(45),  # IPv6-safe
         nullable=True,
     )
-    refresh_token: Mapped[str] = mapped_column(String, nullable=False)
+    refresh_token: Mapped[str] = mapped_column(String, nullable=True)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=get_current_datetime, nullable=False
     )
