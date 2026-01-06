@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import UUID, DateTime, ForeignKey
+from sqlalchemy import UUID, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.root_model import RootModel
@@ -20,7 +20,19 @@ class AdminSession(RootModel):
         ForeignKey("admins.admin_id", ondelete="CASCADE"),
         nullable=False,
     )
-
+    expires_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True),
+        nullable=False,
+    )
+    is_active: Mapped[bool] = mapped_column(
+        default=True,
+        nullable=False,
+    )
+    ip_address: Mapped[str | None] = mapped_column(
+        String(45),  # IPv6-safe
+        nullable=True,
+    )
+    refresh_token: Mapped[str] = mapped_column(String, nullable=False)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), default=get_current_datetime, nullable=False
     )
