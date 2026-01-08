@@ -5,7 +5,6 @@ from app.schemas.predefs.predef_role_schema import (
     PredefRegistrationRolePostRequestSchema,
 )
 from app.services.predefs.predef_role_service import predef_registration_role_post
-from app.types import auth
 from app.types.db import DBSession
 
 

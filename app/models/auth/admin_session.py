@@ -22,7 +22,7 @@ class AdminSession(RootModel):
     )
     expires_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
-        nullable=False,
+        nullable=True,
     )
     is_active: Mapped[bool] = mapped_column(
         default=True,

@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import HTTPException, status
 
 from app.models.auth.admin_session import AdminSession
-from app.schemas.auth.admin import AdminLoginRequest, AdminSignUpRequest
+from app.schemas.auth.admin import AdminLoginRequest, AdminSignUpRequest, TokenResponse
 from app.utils.auth import (
     create_access_token,
     create_refresh_token,
@@ -59,7 +59,7 @@ async def login_admin(
     db: AsyncSession,
     payload: AdminLoginRequest,
     ip_address: str | None,
-) -> dict[str, str]:
+) -> TokenResponse:
     """
     Authenticate admin and issue tokens.
 
@@ -90,7 +90,7 @@ async def login_admin(
 
         # Prepare access token payload
         access_token_payload = {
-            "admin_id": admin.admin_id,
+            "admin_id": str(admin.admin_id),
         }
 
         # Generate short-lived access token
@@ -98,7 +98,7 @@ async def login_admin(
 
         # Create a new session (refresh token will be attached later)
         session = AdminSession(
-            admin_id=admin.admin_id,
+            admin_id=str(admin.admin_id),
             ip_address=ip_address,
         )
 
@@ -108,8 +108,8 @@ async def login_admin(
 
         # Prepare refresh token payload bound to this session
         refresh_token_payload = {
-            "admin_id": admin.admin_id,
-            "session_id": session.admin_session_id,
+            "admin_id": str(admin.admin_id),
+            "session_id": str(session.admin_session_id),
         }
 
         # Generate refresh token
@@ -122,18 +122,76 @@ async def login_admin(
         # Commit all changes atomically
         await db.commit()
 
-        return {
-            "access_token": access_token,
-            "refresh_token": refresh_token,
-        }
+        return TokenResponse(access_token=access_token, refresh_token=refresh_token)
 
     except HTTPException:
         # Re-raise expected authentication errors
         raise
 
     except Exception:
+        import traceback
+
+        traceback.print_exc()
         # Catch-all for unexpected failures
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed due to internal error",
         )
+
+
+# Function to refresh admin access tokens
+async def refresh_admin_token(db: AsyncSession, refresh_token: str) -> dict[str, str]:
+    """
+    Refresh admin access token using a valid refresh token.
+
+    Steps:
+    1. Validate refresh token and session
+    2. Issue new access token
+    3. Optionally issue new refresh token
+    """
+    try:
+        # Fetch session by refresh token
+        result = await db.execute(
+            select(AdminSession).where(AdminSession.refresh_token == refresh_token)
+        )
+        session = result.scalar_one_or_none()
+
+        # Validate session existence and expiry
+        if (
+            not session
+            or session.expires_at < get_current_datetime()
+            or not session.is_active
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired refresh token",
+            )
+
+        # Get the admin_id from the session
+        admin_id = session.admin_id
+
+        # Prepare new access token payload
+        access_token_payload = {
+            "admin_id": str(admin_id),
+        }
+
+        # Generate new access token
+        access_token = create_access_token(access_token_payload)
+
+        return {
+            "access_token": access_token,
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to refresh token",
+        )
+
+
+# Function to handle the admin forgot password
+# TODO: Implement the flow after wards with resend
+# async def forgot_password_admin(db:AsyncSession,)
