@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Request, Response, status
+from fastapi import APIRouter, Body, Depends, Form, Request, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.configs.settings import settings
@@ -13,8 +13,8 @@ router = APIRouter(prefix="/admin", tags=["Admin Auth"])
 
 @router.post("/signup", status_code=status.HTTP_201_CREATED)
 async def admin_signup(
-    db: DBSession,
-    payload: AdminSignUpRequest,
+    db: DBSession = Depends(get_database),
+    payload: AdminSignUpRequest = Body(...),
 ):
     """
     Create a new admin account.
@@ -29,10 +29,10 @@ async def admin_signup(
 
 @router.post("/login")
 async def admin_login(
-    db: DBSession,
-    payload: AdminLoginRequest,
-    request: Request,
     response: Response,
+    request: Request,
+    db: DBSession = Depends(get_database),
+    payload: AdminLoginRequest = Body(...),
 ):
     """
     Authenticate admin and set auth cookies.
@@ -47,8 +47,8 @@ async def admin_login(
         ip_address=ip_address,
     )
 
-    access_token = tokens["access_token"]
-    refresh_token = tokens["refresh_token"]
+    access_token = tokens.access_token
+    refresh_token = tokens.refresh_token
 
     # Set access token cookie (short-lived)
     response.set_cookie(
