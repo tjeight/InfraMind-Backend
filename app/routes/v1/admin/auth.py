@@ -1,10 +1,11 @@
-from fastapi import APIRouter, Request, Response, status
+from fastapi import APIRouter, Depends, Request, Response, status
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.configs import settings
 from app.configs.settings import settings
 from app.schemas.auth.admin import AdminLoginRequest, AdminSignUpRequest
-from app.types.db import DBSession
 from app.services.auth.admin import login_admin, signup_admin
+from app.types.db import DBSession
+from app.configs.session import get_database
 
 # Configure router
 router = APIRouter(prefix="/admin", tags=["Admin Auth"])
@@ -74,3 +75,15 @@ async def admin_login(
         "success": True,
         "message": "Login successful",
     }
+
+
+@router.post("/refresh_access_token")
+async def admin_refresh_access_token(
+    request: Request,
+    db: AsyncSession = Depends(get_database),
+):
+    # get the refresh token from the cookie
+
+    refresh_token = request.cookies.get("refresh_token")
+
+    # pass the refresh token

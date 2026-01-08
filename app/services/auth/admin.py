@@ -137,3 +137,11 @@ async def login_admin(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Login failed due to internal error",
         )
+
+
+# TODO : Implement the refresh access token
+
+
+# Function to handle the admin forgot password
+# TODO: Implement the flow after wards with resend
+# async def forgot_password_admin(db:AsyncSession,)

@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 15
     REFRESH_TOKEN_EXPIRE_DAYS: int = 7
 
+    # Resend variables
+    RESEND_API_KEY: str = ""
+
     # -------------------------
     # Derived Timedeltas
     # -------------------------
