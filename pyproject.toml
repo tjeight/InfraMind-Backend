@@ -17,7 +17,11 @@ dependencies = [
 [dependency-groups]
 dev = [
     "ruff>=0.14.10",
+    "ty>=0.0.10",
 ]
 
 [tool.ruff]
 exclude = [".venv","app/repository"]
+
+[tool.ty.src]
+exclude =[".venv"]

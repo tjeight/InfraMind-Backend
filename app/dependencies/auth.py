@@ -1,6 +1,5 @@
 import jwt
 from fastapi import HTTPException, Request, status
-from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.configs.settings import settings
 from app.schemas.auth.admin import AdminData
