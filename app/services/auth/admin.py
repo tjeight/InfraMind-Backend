@@ -139,7 +139,57 @@ async def login_admin(
         )
 
 
-# TODO : Implement the refresh access token
+# Function to refresh admin access tokens
+async def refresh_admin_token(db: AsyncSession, refresh_token: str) -> dict[str, str]:
+    """
+    Refresh admin access token using a valid refresh token.
+
+    Steps:
+    1. Validate refresh token and session
+    2. Issue new access token
+    3. Optionally issue new refresh token
+    """
+    try:
+        # Fetch session by refresh token
+        result = await db.execute(
+            select(AdminSession).where(AdminSession.refresh_token == refresh_token)
+        )
+        session = result.scalar_one_or_none()
+
+        # Validate session existence and expiry
+        if (
+            not session
+            or session.expires_at < get_current_datetime()
+            or not session.is_active
+        ):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid or expired refresh token",
+            )
+
+        # Get the admin_id from the session
+        admin_id = session.admin_id
+
+        # Prepare new access token payload
+        access_token_payload = {
+            "admin_id": admin_id,
+        }
+
+        # Generate new access token
+        access_token = create_access_token(access_token_payload)
+
+        return {
+            "access_token": access_token,
+        }
+
+    except HTTPException:
+        raise
+
+    except Exception:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="Failed to refresh token",
+        )
 
 
 # Function to handle the admin forgot password

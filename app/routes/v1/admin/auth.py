@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.configs.settings import settings
 from app.schemas.auth.admin import AdminLoginRequest, AdminSignUpRequest
-from app.services.auth.admin import login_admin, signup_admin
+from app.services.auth.admin import login_admin, refresh_admin_token, signup_admin
 from app.types.db import DBSession
 from app.configs.session import get_database
 
@@ -80,10 +80,44 @@ async def admin_login(
 @router.post("/refresh_access_token")
 async def admin_refresh_access_token(
     request: Request,
+    response: Response,
     db: AsyncSession = Depends(get_database),
 ):
     # get the refresh token from the cookie
 
     refresh_token = request.cookies.get("refresh_token")
 
-    # pass the refresh token
+    if not refresh_token:
+        return {
+            "success": False,
+            "message": "Refresh token missing",
+        }
+    # pass the refresh token token the service function
+    tokens = await refresh_admin_token(db=db, refresh_token=refresh_token)
+
+    # set the new access token in the cookie
+    access_token = tokens["access_token"]
+
+    response.set_cookie(
+        key="access_token",
+        value=access_token,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/",
+    )
+    # also sent the refresh token in the response
+    response.set_cookie(
+        key="refresh_token",
+        value=refresh_token,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        httponly=True,
+        secure=True,
+        samesite="lax",
+        path="/",
+    )
+
+    return {
+        "success": True,
+        "message": "Access token refreshed successfully",
+    }
