@@ -12,3 +12,8 @@ class AdminSignUpRequest(BaseModel):
 class AdminLoginRequest(BaseModel):
     email: EmailStr
     password: str
+
+
+# Admin Schema for the dependency
+class AdminData(BaseModel):
+    admin_id: int
