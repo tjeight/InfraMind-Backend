@@ -16,7 +16,7 @@ class AdminLoginRequest(BaseModel):
 
 # Admin Schema for the dependency
 class AdminData(BaseModel):
-    admin_id: int
+    admin_id: str
 
 
 #  Admin Schema for the response
