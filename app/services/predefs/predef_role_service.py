@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models.predefs.predef_role_model import PredefRegistrationRole
+from app.models.predefs.role_model import PredefRegistrationRole
 from app.schemas.predefs.predef_role_schema import (
     PredefRegistrationRolePostRequestSchema,
 )
