@@ -28,6 +28,7 @@ class User(RootModel):
     city_id: Mapped[TypeUUID] = mapped_column(
         UUID(as_uuid=True), ForeignKey("cities.city_id"), nullable=True
     )
+    is_active: Mapped[bool] = mapped_column(nullable=False, default=False)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=get_current_datetime
