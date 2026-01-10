@@ -5,3 +5,5 @@ from app.models.auth.admin_session import AdminSession
 from app.models.predefs.country import Country
 from app.models.predefs.state import State
 from app.models.predefs.city import City
+from app.models.auth.user import User
+from app.models.auth.user_session import UserSession

@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from app.utils.generators import get_current_datetime
-from sqlalchemy import UUID, DateTime, String
+from sqlalchemy import UUID, DateTime, ForeignKey, String
 from sqlalchemy.orm import Mapped, mapped_column
 
 from app.models.root_model import RootModel
@@ -19,9 +19,15 @@ class User(RootModel):
     last_name: Mapped[str] = mapped_column(String, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False, unique=True, index=True)
     hashed_password: Mapped[str] = mapped_column(String, nullable=False)
-    country: Mapped[str] = mapped_column(String, nullable=True)
-    state: Mapped[str] = mapped_column(String, nullable=True)
-    city: Mapped[str] = mapped_column(String, nullable=True)
+    country_id: Mapped[TypeUUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("countries.country_id"), nullable=True
+    )
+    state_id: Mapped[TypeUUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("states.state_id"), nullable=True
+    )
+    city_id: Mapped[TypeUUID] = mapped_column(
+        UUID(as_uuid=True), ForeignKey("cities.city_id"), nullable=True
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), nullable=False, default=get_current_datetime
