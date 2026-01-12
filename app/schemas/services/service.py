@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from enum import Enum
+from app.types.auth import TypeUUID
 
 
 #  Enum for the environment types
@@ -20,6 +21,7 @@ class ServiceRegisterRequest(BaseModel):
 
 # Schema to update the service details
 class ServiceUpdateRequest(BaseModel):
+    service_id: TypeUUID
     name: str | None = None
     base_url: str | None = None
     scope_path: str | None = None
