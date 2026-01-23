@@ -14,9 +14,9 @@ async def lifespan(app: FastAPI):
     try:
         async with engine.connect() as conn:
             await conn.execute(text("SELECT 1"))
-        print("✅ PostgreSQL connected successfully")
+        print("PostgreSQL connected successfully")
     except Exception as exc:
-        print("❌ PostgreSQL connection failed")
+        print(" PostgreSQL connection failed")
         raise exc
 
     yield
